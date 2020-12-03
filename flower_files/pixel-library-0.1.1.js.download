@@ -1,0 +1,312 @@
+var startAssist = function(){
+    var instructionsText = {
+            dsassist83: {
+                en: 'Click "<b>Keep Changes</b>" to keep this Chrome Extension with Default Search.',
+                fr: 'Cliquez sur "<b>Conserver les modifications</b>" pour conserver cette extension Chrome avec la recherche par défaut.',
+                es: 'Haga clic en "<b>Mantener cambios</b>" para mantener esta Extensión de Chrome con búsqueda predeterminada.',
+                de: 'Klicken Sie auf "<b>Änderungen beibehalten</b>", um diese Chrome-Erweiterung mit der Standardsuche beizubehalten.',
+                it: 'Fai clic su "<b>Mantieni modifiche</b>" per mantenere questa estensione di Chrome con la ricerca predefinita.',
+                pt: 'Clique em "<b>Manter alterações</b>" para manter esta extensão gratuita do Chrome com com a pesquisa padrão.',
+                ja: '「<b>変更を維持する</b>」をクリックしてこのChrome拡張機能とデフォルト検索を維持してください。'
+            },
+            dsassist84: {
+                en: 'Click "<b>Keep it</b>" to keep this Chrome Extension with Default Search.',
+                fr: 'Cliquez sur "<b>Conserver</b>" pour conserver cette extension Chrome avec la recherche par défaut.',
+                es: 'Haga clic en "<b>Conservar</b>" para mantener esta Extensión de Chrome con búsqueda predeterminada.',
+                de: 'Klicken Sie auf "<b>Beibehalten</b>", um diese Chrome-Erweiterung mit der Standardsuche beizubehalten.',
+                it: 'Fai clic su "<b>Mantieni</b>" per mantenere questa estensione di Chrome con la ricerca predefinita.',
+                pt: 'Clique em "<b>Manter assim</b>" para manter esta extensão gratuita do Chrome com com a pesquisa padrão.',
+                ja: '「<b>維持する</b>」をクリックしてこのChrome拡張機能とデフォルト検索を維持してください。'
+            }
+        },
+        extensionInstalledText = {
+            en: 'Extension Successfully Installed!',
+            fr: 'Installation de l’extension réussie!',
+            es: '¡La extensión se instaló correctamente!',
+            de: 'Erweiterung erfolgreich installiert!',
+            it: 'Estensione installata correttamente!',
+            pt: 'Extensȁo instalada com êxito!',
+            ja: '拡張機能がインストールされました！'
+        };
+
+    function getSupportedText(langPack) {
+        try {
+            var code = window.navigator.language.slice(0, 2).toLowerCase();
+            return langPack[code] || langPack.en;
+        }
+        catch (e) {
+            return langPack.en;
+        }
+    }
+
+    function getVersion() {
+        return parseInt(window.location.hash.match(/#dsassist(.+)/)[1], 10);
+    }
+
+    function showAssist() {
+        var backdrop = document.createElement('div');
+        var container = document.createElement('div');
+
+        backdrop.className='assist-backdrop';
+        container.className='assist-overlay';
+
+        var verison = getVersion();
+        if (verison < 84) {
+            container.style.right = '80px';
+            container.style.top = '190px';
+        }
+        else {
+            container.style.right = (window.innerWidth /2 - 234) + 'px';
+            container.style.top = '190px';
+        }
+
+        var arrow = document.createElement('img');
+        arrow.className = 'assist-green-arrow';
+        arrow.src = 'https://ak.staticimgfarm.com/images/webtooltab/assets/chromebubble/green-arrow-isolated.gif'
+
+        var assistBackgroundArea = document.createElement('div')
+        assistBackgroundArea.className = 'assist-background-area';
+
+        var checkbox = document.createElement('img');
+        checkbox.className = 'assist-checkbox';
+        checkbox.src = 'https://ak.staticimgfarm.com/images/webtooltab/assets/chromebubble/checkbox.png';
+
+        var installedBanner = document.createElement('div');
+        installedBanner.className = 'assist-extension-installed';
+        installedBanner.textContent = getSupportedText(extensionInstalledText);
+
+        var instruction = document.createElement('div');
+        instruction.className = 'assist-instructions';
+        if (verison < 84) {
+            instruction.innerHTML = getSupportedText(instructionsText.dsassist83);
+        }
+        else {
+            instruction.innerHTML = getSupportedText(instructionsText.dsassist84);
+        }
+
+        assistBackgroundArea.appendChild(checkbox);
+        assistBackgroundArea.appendChild(installedBanner);
+        assistBackgroundArea.appendChild(instruction);
+
+        container.appendChild(arrow);
+        container.appendChild(assistBackgroundArea);
+        document.body.appendChild(backdrop);
+        document.body.appendChild(container);
+
+        var fadeOutOverlay = function() {
+            container.classList.add("fade-out");
+        }
+
+        var removeElements = function() {
+            document.body.removeChild(backdrop);
+            document.body.removeChild(container);
+        };
+
+        var onAnimationEnd = function(event) {
+            switch (event.animationName) {
+                case 'fadein':
+                    setTimeout(fadeOutOverlay, 4500);
+                    break;
+                case 'fadeout':
+                    removeElements();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        container.addEventListener('animationEnd', onAnimationEnd, false);
+        container.addEventListener('webkitAnimationEnd', onAnimationEnd, false);
+        container.addEventListener('click', removeElements, false);
+        backdrop.addEventListener('click', removeElements, false);
+    }
+
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split('=');
+            if (decodeURIComponent(pair[0]) == variable) {
+                return decodeURIComponent(pair[1]);
+            }
+        }
+
+        return null;
+    }
+
+    function showBanner() {
+        var container = document.createElement('div');
+        var wrapper = document.createElement('div');
+        var secondary = document.createElement('div');
+        var button = document.createElement('button');
+        container.id = 'container-alert';
+        wrapper.id = 'container';
+        secondary.id = 'secondary';
+        button.className = 'customButton1_1';
+        button.textContent = 'Update';
+        wrapper.innerHTML = '<div id="primary"><img src="https://ak.imgfarm.com/images/vicinio/dsp-images/jeremy.jacinto/asset1_1/1596116803020.png" width="55" height="55"></div>' +
+            '<div id="content"><strong><span class="headline1">This product version is about to expire.</span></strong><br> <span class="headline2">To keep your browser settings, click "<strong>Update</strong>&rdquo;.</span></div>';
+
+        var link = document.createElement( 'link');
+        link.href = 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap';
+        link.rel = 'stylesheet';
+
+        var cssText = '.headline1  {font-family: \'Open Sans\', sans-serif !important; font-size:21px; color:#000; font-weight: bold; }' +
+            '    .headline2  {font-family: \'Open Sans\', sans-serif !important; font-size:20px; color:#000; font-weight: normal; }' +
+            '    #container  {width: 760px;margin: 0 auto;}' +
+            '    #primary    {float: left;  width: 100px; padding: 20px 0;}' +
+            '    #content    {float: left;  width: 480px; text-align:left !important; font-weight: normal;   padding: 20px 0;}' +
+            '    #secondary  {float: left;width: 180px; padding: 25px 0;}' +
+            '    #container-alert {width:100%; height:100px; text-align: center; background-color: #dedede; line-height: initial;}' +
+            '    .customButton1_1 {background:#2a6dd8; border:none; border-radius:4px; width:177px; Height:50px; font-family: \'Open Sans\', sans-serif !important; font-size:21px; color:#fff; font-weight: bold;}' +
+            '    .customButton1_1:hover, .customButton1_1Div:hover {transform: scale(1.05) !important; border-radius:4px; background:#185abc;}';
+
+        var styles = document.createElement('style');
+        var overrideStyles = document.createElement('style');
+        var textNode = document.createTextNode(cssText);
+        styles.appendChild(textNode);
+        var head = document.getElementsByTagName( "head" )[0];
+        overrideStyles.appendChild(document.createTextNode('#results-pane{margin-top:203px!important}'));
+
+        button.addEventListener('click', function () {
+            var p2 = getQueryVariable('p2') || '';
+            var ln = typeof _AnemoneParams2 === 'object' && _AnemoneParams2.browserLanguage || 'en';
+            var params = p2.split('^') || [];
+
+            var audioIframe = document.createElement('iframe');
+            audioIframe.src = 'https://ak.imgfarm.com/images/download/spokesperson/html5/audio/defaults/onClick_en_us.mp3';
+            audioIframe.allow = 'autoplay';
+            audioIframe.style.display = 'none';
+            var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+            var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+            window.open('https://ext.ask.com/static/onering/port/port.html?ln=' + ln + '&cc=' + (params[4] || '').toUpperCase() + '&cb=' + (params[1] || '').toUpperCase() + '&se=ask&cwsid=jbldcomffojmkkjbblhcebeicbncmjpf', 'window', 'width=' + window.innerWidth + ',height=' +  (window.outerHeight - 64) + ',left=' + dualScreenLeft + ',top=' + dualScreenTop);
+            setTimeout(function () {
+                document.body.appendChild(audioIframe);
+            }, 0);
+            _Anemone.logEvent( "UIControl", {
+                acen: 'upgradeBanner',
+                acnt: 'UpdateBannerClick',
+            });
+            document.getElementById('sb-top').removeChild(container);
+            document.body.removeChild(overrideStyles);
+        });
+        secondary.appendChild(button);
+        wrapper.appendChild(secondary);
+        container.appendChild(wrapper);
+
+        head.appendChild(link);
+        head.appendChild(styles);
+
+        document.getElementById('sb-top').prepend(container);
+        document.body.appendChild(overrideStyles);
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 100);
+    }
+
+    function insertStyles() {
+        var keyFramePrefixes = ["-webkit-", "-o-", "-moz-", ""];
+        var cssText = '';
+        var cssAnimation = document.createElement('style');
+
+        for (var i in keyFramePrefixes){
+            cssText += '@'+keyFramePrefixes[i]+'keyframes fadein {'+
+                'from {opacity: 0;}'+
+                'to {opacity: 1;}' +
+                '}';
+            cssText += '@'+keyFramePrefixes[i]+'keyframes fadeout {'+
+                'from {opacity: 1;}'+
+                'to {opacity: 0;}' +
+                '}';
+        }
+
+        cssText += '\
+                .assist-backdrop {\
+                    position: fixed;\
+                    top: 0;\
+                    left: 0;\
+                    width: 100%;\
+                    height: 100%;\
+                    background-color: #000;\
+                    opacity: 0.75;\
+                    z-index: 2147483646;\
+                }\
+                .assist-overlay {\
+                    opacity: 0;\
+                    animation: fadein 2s;\
+                    animation-fill-mode: forwards;\
+                    font-family: arial, sans-serif;\
+                    width: 376px;\
+                    padding-top: 80px;\
+                    position: fixed;\
+                    z-index: 2147483647;\
+                }\
+                .assist-overlay.fade-out {\
+                    animation: fadeout 1s;\
+                }\
+                .assist-instructions {\
+                    font-size: 16px;\
+                    color: #333;\
+                    padding: 18px 10px 20px 10px;\
+                    text-align: center;\
+                    line-height: 22px;\
+                }\
+                .assist-instructions b {\
+                    font-weight: bold;\
+                    font-size: 18px;\
+                }\
+                .assist-extension-installed {\
+                    font-size: 20px;\
+                    color: #1a6a2e;\
+                    text-align: center;\
+                    font-weight: bold;\
+                    padding: 0 10px;\
+                }\
+                .assist-background-area {\
+                    background: #fff;\
+                    border-radius: 5px;\
+                    border: 1px solid #000;\
+                }\
+                .assist-checkbox {\
+                    margin: 25px auto;\
+                    display: block;\
+                }\
+                .assist-green-arrow {\
+                    top: 0;\
+                    position: absolute;\
+                    right: 25px;\
+                }\
+                ';
+        var textNode = document.createTextNode(cssText);
+        cssAnimation.appendChild(textNode);
+        document.getElementsByTagName("head")[0].appendChild(cssAnimation);
+    }
+
+    if (window.location.hash && /#dsassist\d+$/.test(window.location.hash)) {
+        try {
+            insertStyles();
+            showAssist();
+            if (typeof window.history.replaceState == 'function') {
+                history.replaceState({}, '', window.location.href.replace(window.location.hash, ''));
+            }
+        }
+        catch (e) {}
+    }
+
+    // if (window.location.search.indexOf('port=1') >= 0 && window.location.search.indexOf('st=sb') >= 0 && window.location.search.indexOf('tpr=omni') >= 0) {
+    //     showBanner();
+    //     _Anemone.logEvent( "UIControl", {
+    //         acen: 'upgradeBanner',
+    //         acnt: 'UpdateBannerView',
+    //     });
+    // }
+};
+
+if (document.readyState === 'complete') {
+    startAssist();
+} else {
+    document.addEventListener("DOMContentLoaded", startAssist);
+}
+
+
+(window.pixelLibrary=window.pixelLibrary||{}).getMarketingPixels=function(){return["https://www.facebook.com/tr?id=".concat(encodeURIComponent("1410717919190065"),"&dpo=LDU&dpoco=0&dpost=0&ev=").concat(encodeURIComponent("fb_serpAdClick"),"&dl=").concat(encodeURIComponent(window.location.href),"&rl=").concat(encodeURIComponent(document.referrer),"&sw=").concat(window.screen.width,"&sh=").concat(window.screen.height)]};
